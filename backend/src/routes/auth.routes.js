@@ -1,47 +1,51 @@
-const router = require("express").Router();
+const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
-// REGISTRO
-router.post("/register", async (req, res) => {
-  console.log(req.body);
-  try {
-    const { name, email, password } = req.body;
+const router = express.Router();
 
-    const userExists = await User.findOne({ where: { email } });
-    if (userExists) {
+/* REGISTRO */
+router.post("/register", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Faltan datos" });
+    }
+
+    const exists = await User.findOne({ where: { email } });
+    if (exists) {
       return res.status(400).json({ message: "El usuario ya existe" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      name,
+    await User.create({
       email,
-      password: hashedPassword,
+      password: hashedPassword
     });
 
     res.json({ message: "Usuario registrado correctamente" });
   } catch (error) {
-     console.error(error);
+    console.error("ERROR REGISTRO:", error);
     res.status(500).json({ message: "Error en registro" });
   }
 });
 
-// LOGIN
+/* LOGIN */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(400).json({ message: "Credenciales incorrectas" });
+      return res.status(400).json({ message: "Credenciales inválidas" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Credenciales incorrectas" });
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      return res.status(400).json({ message: "Credenciales inválidas" });
     }
 
     const token = jwt.sign(
@@ -50,15 +54,9 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-      },
-    });
+    res.json({ token });
   } catch (error) {
+    console.error("ERROR LOGIN:", error);
     res.status(500).json({ message: "Error en login" });
   }
 });

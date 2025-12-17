@@ -12,11 +12,11 @@ const protectedRoutes = require("./routes/protected.routes");
 
 const app = express();
 
-/* 🔹 Middlewares primero */
+/* Middlewares */
 app.use(cors());
 app.use(express.json());
 
-/* 🔹 Rutas */
+/* Rutas */
 app.use("/api/auth", authRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api", protectedRoutes);
@@ -38,25 +38,3 @@ sequelize
   .catch(err => {
     console.error("Error al conectar la base:", err);
   });
-
-  // ELIMINAR transacción
-router.delete("/:id", authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deleted = await Transaction.destroy({
-      where: {
-        id,
-        userId: req.user.id
-      }
-    });
-
-    if (!deleted) {
-      return res.status(404).json({ message: "Transacción no encontrada" });
-    }
-
-    res.json({ message: "Transacción eliminada" });
-  } catch (error) {
-    res.status(500).json({ message: "Error al eliminar transacción" });
-  }
-});

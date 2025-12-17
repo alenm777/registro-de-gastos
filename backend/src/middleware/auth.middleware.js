@@ -15,7 +15,9 @@ const authMiddleware = (req, res, next) => {
       process.env.JWT_SECRET || "secreto123"
     );
 
-    req.userId = decoded.id; // guardamos el id del usuario
+    // 👉 guardamos SOLO el id del usuario
+    req.userId = decoded.id;
+
     next();
   } catch (error) {
     return res.status(401).json({ message: "Token inválido" });

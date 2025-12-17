@@ -3,7 +3,7 @@ const router = express.Router();
 const authMiddleware = require("../middleware/auth.middleware");
 const Transaction = require("../models/Transaction");
 
-/* CREAR transacción */
+// CREAR transacción
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { type, amount, category, date } = req.body;
@@ -13,7 +13,7 @@ router.post("/", authMiddleware, async (req, res) => {
       amount,
       category,
       date,
-      userId: req.user.id,
+      userId: req.userId
     });
 
     res.status(201).json(transaction);
@@ -22,17 +22,25 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-/* LISTAR transacciones */
-router.get("/", authMiddleware, async (req, res) => {
+// ELIMINAR transacción
+router.delete("/:id", authMiddleware, async (req, res) => {
   try {
-    const transactions = await Transaction.findAll({
-      where: { userId: req.user.id },
-      order: [["date", "DESC"]],
+    const { id } = req.params;
+
+    const deleted = await Transaction.destroy({
+      where: {
+        id,
+        userId: req.userId // ✅ coherente con el middleware
+      }
     });
 
-    res.json(transactions);
+    if (!deleted) {
+      return res.status(404).json({ message: "Transacción no encontrada" });
+    }
+
+    res.json({ message: "Transacción eliminada" });
   } catch (error) {
-    res.status(500).json({ message: "Error al obtener transacciones" });
+    res.status(500).json({ message: "Error al eliminar transacción" });
   }
 });
 
