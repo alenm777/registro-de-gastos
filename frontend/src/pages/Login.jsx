@@ -1,25 +1,38 @@
-import { useState, useContext } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginRequest } from "../services/auth";
-import { AuthContext } from "../context/AuthContext";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
-  const [form, setForm] = useState({ email: "", password: "" });
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleChange = e =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const [form, setForm] = useState({
+    email: "",
+    password: ""
+  });
 
-  const handleSubmit = async e => {
-  e.preventDefault();
-  try {
-    const res = await loginRequest(form);
-    login(res.data.user, res.data.token);
-  } catch (err) {
-    alert("Email o contraseña incorrectos");
-  }
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
 
-    const res = await loginRequest(form);
-    login(res.data.token); // 👈 SOLO el token
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await loginRequest(form);
+
+      // guardamos usuario + token
+      login(res.data.user, res.data.token);
+
+      // 👉 REDIRECCIÓN AL DASHBOARD
+      navigate("/");
+    } catch (error) {
+      alert("Email o contraseña incorrectos");
+    }
   };
 
   return (
@@ -27,15 +40,19 @@ export default function Login() {
       <input
         name="email"
         placeholder="Email"
+        value={form.email}
         onChange={handleChange}
       />
+
       <input
         name="password"
         type="password"
         placeholder="Password"
+        value={form.password}
         onChange={handleChange}
       />
-      <button>Ingresar</button>
+
+      <button type="submit">Ingresar</button>
     </form>
   );
 }
