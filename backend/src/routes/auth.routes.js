@@ -5,47 +5,63 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-/* REGISTRO */
+/* =========================
+   REGISTER
+========================= */
 router.post("/register", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({ message: "Faltan datos" });
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Datos incompletos" });
     }
 
     const exists = await User.findOne({ where: { email } });
     if (exists) {
-      return res.status(400).json({ message: "El usuario ya existe" });
+      return res.status(400).json({ message: "Usuario ya existe" });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashed = await bcrypt.hash(password, 10);
 
-    await User.create({
+    const user = await User.create({
+      name,
       email,
-      password: hashedPassword
+      password: hashed,
     });
 
-    res.json({ message: "Usuario registrado correctamente" });
+    res.status(201).json({
+      message: "Usuario registrado correctamente",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
-    console.error("ERROR REGISTRO:", error);
+    console.error(error);
     res.status(500).json({ message: "Error en registro" });
   }
 });
 
-/* LOGIN */
+/* =========================
+   LOGIN
+========================= */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
+    if (!email || !password) {
+      return res.status(400).json({ message: "Datos incompletos" });
+    }
+
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(400).json({ message: "Credenciales inválidas" });
+      return res.status(400).json({ message: "Usuario no encontrado" });
     }
 
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
-      return res.status(400).json({ message: "Credenciales inválidas" });
+      return res.status(400).json({ message: "Password incorrecto" });
     }
 
     const token = jwt.sign(
@@ -54,9 +70,16 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.json({ token });
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
-    console.error("ERROR LOGIN:", error);
+    console.error(error);
     res.status(500).json({ message: "Error en login" });
   }
 });
