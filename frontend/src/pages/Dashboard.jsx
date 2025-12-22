@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getTransactions, deleteTransaction } from "../services/transactions";
 import TransactionForm from "../components/TransactionForm";
+import IncomeExpenseChart from "../components/IncomeExpenseChart";
+import ExpenseLast30DaysChart from "../components/ExpenseLast30DaysChart";
+import IncomeLast30DaysChart from "../components/IncomeLast30DaysChart";
+import IncomeTable from "../components/IncomeTable";
+import ExpenseTable from "../components/ExpenseTable";
 
 export default function Dashboard() {
   const { logout } = useAuth();
   const [transactions, setTransactions] = useState([]);
 
+  // 🔄 Cargar transacciones
   const loadTransactions = async () => {
     try {
       const res = await getTransactions();
@@ -20,26 +26,27 @@ export default function Dashboard() {
     loadTransactions();
   }, []);
 
-  // 🔴 ELIMINAR TRANSACCIÓN
-  const handleDelete = async (id) => {
-    const confirm = window.confirm("¿Eliminar esta transacción?");
-    if (!confirm) return;
+  // 🗑️ Eliminar transacción
+  const handleDeleteTransaction = async (id) => {
+    const confirmed = window.confirm("¿Eliminar esta transacción?");
+    if (!confirmed) return;
 
     try {
       await deleteTransaction(id);
-      loadTransactions(); // recarga lista
+      loadTransactions();
     } catch (err) {
       console.error("Error al eliminar transacción", err);
     }
   };
 
+  // 📊 Totales
   const totalIncome = transactions
     .filter(t => t.type === "income")
-    .reduce((acc, t) => acc + t.amount, 0);
+    .reduce((acc, t) => acc + Number(t.amount), 0);
 
   const totalExpense = transactions
     .filter(t => t.type === "expense")
-    .reduce((acc, t) => acc + t.amount, 0);
+    .reduce((acc, t) => acc + Number(t.amount), 0);
 
   const balance = totalIncome - totalExpense;
 
@@ -51,6 +58,7 @@ export default function Dashboard() {
 
       <hr />
 
+      {/* NUEVA TRANSACCIÓN */}
       <h2>Nueva transacción</h2>
       <TransactionForm onCreated={loadTransactions} />
 
@@ -87,44 +95,24 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* LISTA */}
-      <h2>Transacciones recientes</h2>
+      <hr />
 
-      {transactions.length === 0 ? (
-        <p>No hay transacciones registradas</p>
-      ) : (
-        <ul>
-          {transactions.slice(0, 5).map(tx => (
-            <li
-              key={tx.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "8px"
-              }}
-            >
-              <span>
-                {tx.type === "expense" ? "Gasto" : "Ingreso"} — ${tx.amount} — {tx.category}
-              </span>
+       {/* TABLAS */}
+      <h2>Listado completo de ingresos</h2>
+      <IncomeTable transactions={transactions} />
 
-              <button
-                onClick={() => handleDelete(tx.id)}
-                style={{
-                  background: "red",
-                  color: "white",
-                  border: "none",
-                  padding: "4px 8px",
-                  borderRadius: "4px",
-                  cursor: "pointer"
-                }}
-              >
-                Eliminar
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+      <h2>Listado completo de gastos</h2>
+      <ExpenseTable
+        transactions={transactions}
+        onDelete={handleDeleteTransaction}
+      />
+
+      {/* GRÁFICOS */}
+      <IncomeExpenseChart income={totalIncome} expense={totalExpense} />
+      <ExpenseLast30DaysChart transactions={transactions} />
+      <IncomeLast30DaysChart transactions={transactions} />
+
+      <hr />
     </div>
   );
 }
