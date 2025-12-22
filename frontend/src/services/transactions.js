@@ -1,11 +1,13 @@
-import axios from "axios";
+import api from "./api";
 
-const API_URL = "http://127.0.0.1:5000/api/transactions";
+export const getTransactions = () => {
+  return api.get("/transactions");
+};
 
-export const getTransactions = token => {
-  return axios.get(API_URL, {
-    headers: {
-      Authorization: `Bearer ${token}`
-    }
-  });
+export const createTransaction = data => {
+  return api.post("/transactions", data);
+};
+
+export const deleteTransaction = id => {
+  return api.delete(`/transactions/${id}`);
 };

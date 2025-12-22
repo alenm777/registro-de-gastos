@@ -3,6 +3,21 @@ const router = express.Router();
 const authMiddleware = require("../middleware/auth.middleware");
 const Transaction = require("../models/Transaction");
 
+// 🔹 OBTENER transacciones del usuario
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const transactions = await Transaction.findAll({
+      where: { userId: req.userId },
+      order: [["date", "DESC"]]
+    });
+
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener transacciones" });
+  }
+});
+
+
 // CREAR transacción
 router.post("/", authMiddleware, async (req, res) => {
   try {

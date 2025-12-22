@@ -3,7 +3,7 @@ const sequelize = require("../config/database");
 
 const Transaction = sequelize.define("Transaction", {
   type: {
-    type: DataTypes.ENUM("income", "expense"),
+    type: DataTypes.STRING,
     allowNull: false,
   },
   amount: {
@@ -16,6 +16,10 @@ const Transaction = sequelize.define("Transaction", {
   },
   date: {
     type: DataTypes.DATE,
+    allowNull: false,
+  },
+  userId: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
 });
