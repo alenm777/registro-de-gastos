@@ -26,9 +26,9 @@ const handleSubmit = async e => {
 return (
     <form onSubmit={handleSubmit}>
         <select name="type" value={form.type} onChange={handleChange}>
-            <option value="gasto">Gasto</option>
-            <option value="ingreso">Ingreso</option>
-        </select>
+        <option value="expense">Gasto</option>
+        <option value="income">Ingreso</option>
+       </select>
 
         <input
         name="amount"
