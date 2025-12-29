@@ -40,7 +40,7 @@ export default function ExpenseByCategoryChart({ transactions }) {
 
   return (
     <div style={{ width: "100%", height: 300 }}>
-      <h3>Gastos por categoría</h3>
+      <h3 style={{ textAlign: "center" }}>Gastos por categoría</h3>
 
       <ResponsiveContainer>
         <PieChart>

@@ -9,6 +9,8 @@ import IncomeLast30DaysChart from "../components/IncomeLast30DaysChart";
 import IncomeTable from "../components/IncomeTable";
 import ExpenseTable from "../components/ExpenseTable";
 import ExpenseByCategoryChart from "../components/ExpenseByCategoryChart";
+import { exportToPDF } from "../utils/exportPDF";
+import { exportToExcel } from "../utils/exportExcel";
 
 export default function Dashboard() {
   const { logout } = useAuth();
@@ -81,6 +83,16 @@ export default function Dashboard() {
         value={selectedMonth}
         onChange={e => setSelectedMonth(e.target.value)}
       />
+
+   <div style={{ margin: "20px 0", display: "flex", gap: "10px" }}>
+  <button onClick={() => exportToPDF(filteredTransactions, selectedMonth)}>
+    📄 Exportar PDF
+  </button>
+
+  <button onClick={() => exportToExcel(filteredTransactions, selectedMonth)}>
+    📊 Exportar Excel
+  </button>
+</div>
 
       <hr />
 

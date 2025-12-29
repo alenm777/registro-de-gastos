@@ -60,5 +60,19 @@ export default function IncomeBarChart({ transactions }) {
     return <p>No hay ingresos en los últimos 30 días</p>;
   }
 
-  return <Bar data={data} options={options} />;
+ return (
+  <div style={{ maxWidth: "600px", margin: "40px auto" }}>
+    <h3 style={{ textAlign: "center" }}>
+      Ingresos últimos 30 días
+    </h3>
+
+    {labels.length === 0 ? (
+      <p style={{ textAlign: "center" }}>
+        No hay ingresos en los últimos 30 días
+      </p>
+    ) : (
+      <Bar data={data} />
+    )}
+  </div>
+);
 }
