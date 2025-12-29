@@ -1,0 +1,149 @@
+:root {
+  --bg: #f6f7f9;
+  --card-bg: #ffffff;
+  --text: #1f2933;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+
+  --income: #16a34a;
+  --expense: #dc2626;
+}
+
+body.dark {
+  --bg: #0f0f0f;
+  --card-bg: #1a1a1a;
+  --text: #f3f4f6;
+  --muted: #9ca3af;
+  --border: #2a2a2a;
+}
+
+/* =========================
+   BASE
+========================= */
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.dashboard {
+  max-width: 1200px;
+  margin: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dashboard-header h1 {
+  font-size: 28px;
+  font-weight: 600;
+}
+
+.header-actions button {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.header-actions button:hover {
+  opacity: 0.85;
+}
+
+/* =========================
+   CARDS
+========================= */
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================
+   SUMMARY
+========================= */
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.summary h3 {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.amount {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.amount.income {
+  color: var(--income);
+}
+
+.amount.expense {
+  color: var(--expense);
+}
+
+/* =========================
+   ACTIONS
+========================= */
+
+.actions {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* =========================
+   CHARTS
+========================= */
+
+.charts {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+/* =========================
+   TABLES
+========================= */
+
+.tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+  .summary,
+  .actions,
+  .charts,
+  .tables {
+    grid-template-columns: 1fr;
+  }
+}

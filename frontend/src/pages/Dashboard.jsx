@@ -9,14 +9,17 @@ import IncomeLast30DaysChart from "../components/IncomeLast30DaysChart";
 import IncomeTable from "../components/IncomeTable";
 import ExpenseTable from "../components/ExpenseTable";
 import ExpenseByCategoryChart from "../components/ExpenseByCategoryChart";
+
 import { exportToPDF } from "../utils/exportPDF";
 import { exportToExcel } from "../utils/exportExcel";
+
+import "./dashboard.css";
 
 export default function Dashboard() {
   const { logout } = useAuth();
   const [transactions, setTransactions] = useState([]);
 
-  // 📅 Mes seleccionado (YYYY-MM)
+  // 📅 Mes seleccionado
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -38,8 +41,7 @@ export default function Dashboard() {
 
   // 🗑️ Eliminar transacción
   const handleDeleteTransaction = async (id) => {
-    const confirmed = window.confirm("¿Eliminar esta transacción?");
-    if (!confirmed) return;
+    if (!window.confirm("¿Eliminar esta transacción?")) return;
 
     try {
       await deleteTransaction(id);
@@ -49,7 +51,7 @@ export default function Dashboard() {
     }
   };
 
-  // 🔎 Filtrar transacciones por mes
+  // 🔎 Filtrar por mes
   const filteredTransactions = transactions.filter(t => {
     if (!t.date) return false;
     const d = new Date(t.date);
@@ -57,7 +59,7 @@ export default function Dashboard() {
     return month === selectedMonth;
   });
 
-  // 📊 Totales del mes
+  // 📊 Totales
   const totalIncome = filteredTransactions
     .filter(t => t.type === "income")
     .reduce((acc, t) => acc + Number(t.amount), 0);
@@ -69,96 +71,97 @@ export default function Dashboard() {
   const balance = totalIncome - totalExpense;
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Panel de control</h1>
+    <div className="dashboard">
 
-      <button onClick={logout}>Cerrar sesión</button>
+      {/* HEADER */}
+      <header className="dashboard-header">
+        <h1>Panel de control</h1>
+        <button onClick={logout}>Cerrar sesión</button>
+      </header>
 
-      <hr />
-
-      {/* 📅 FILTRO POR MES */}
-      <h3>Filtrar por mes</h3>
-      <input
-        type="month"
-        value={selectedMonth}
-        onChange={e => setSelectedMonth(e.target.value)}
-      />
-
-   <div style={{ margin: "20px 0", display: "flex", gap: "10px" }}>
-  <button onClick={() => exportToPDF(filteredTransactions, selectedMonth)}>
-    📄 Exportar PDF
-  </button>
-
-  <button onClick={() => exportToExcel(filteredTransactions, selectedMonth)}>
-    📊 Exportar Excel
-  </button>
-</div>
-
-      <hr />
-
-      {/* ➕ NUEVA TRANSACCIÓN */}
-      <h2>Nueva transacción</h2>
-      <TransactionForm onCreated={loadTransactions} />
-
-      <hr />
-
-      {/* 📊 TARJETAS */}
-      <div style={{ display: "flex", gap: "16px", margin: "20px 0" }}>
-        <div style={{ padding: "16px", border: "1px solid #ccc", width: "200px" }}>
+      {/* RESUMEN */}
+      <section className="summary">
+        <div className="card">
           <h3>Ingresos</h3>
-          <p style={{ color: "green", fontWeight: "bold" }}>
-            ${totalIncome.toFixed(2)}
-          </p>
+          <p className="amount income">${totalIncome.toFixed(2)}</p>
         </div>
 
-        <div style={{ padding: "16px", border: "1px solid #ccc", width: "200px" }}>
+        <div className="card">
           <h3>Gastos</h3>
-          <p style={{ color: "red", fontWeight: "bold" }}>
-            ${totalExpense.toFixed(2)}
-          </p>
+          <p className="amount expense">${totalExpense.toFixed(2)}</p>
         </div>
 
-        <div style={{ padding: "16px", border: "1px solid #ccc", width: "200px" }}>
+        <div className="card">
           <h3>Balance</h3>
-          <p
-            style={{
-              color: balance >= 0 ? "green" : "red",
-              fontWeight: "bold"
-            }}
-          >
-            {balance < 0
-              ? `-$${Math.abs(balance).toFixed(2)}`
-              : `$${balance.toFixed(2)}`}
+          <p className={`amount ${balance >= 0 ? "income" : "expense"}`}>
+            ${balance.toFixed(2)}
           </p>
         </div>
-      </div>
+      </section>
 
-      <hr />
+      {/* ACCIONES */}
+      <section className="actions">
+        <div className="card">
+          <h2>Nueva transacción</h2>
+          <TransactionForm onCreated={loadTransactions} />
+        </div>
 
-      {/* 📋 TABLAS */}
-      <h2>Listado completo de ingresos</h2>
-      <IncomeTable transactions={filteredTransactions} />
+        <div className="card">
+          <h3>Filtrar por mes</h3>
+          <input
+            type="month"
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+          />
 
-      <h2>Listado completo de gastos</h2>
-      <ExpenseTable
-        transactions={filteredTransactions}
-        onDelete={handleDeleteTransaction}
-      />
-      <hr />
-      {/* 📈 GRÁFICOS */}
-      <IncomeExpenseChart
-        income={totalIncome}
-        expense={totalExpense}
-      />
-      <ExpenseByCategoryChart
-        transactions={filteredTransactions}
-      />
-      <ExpenseLast30DaysChart
-        transactions={filteredTransactions}
-      />
-      <IncomeLast30DaysChart
-        transactions={filteredTransactions}
-      />
+          {/* 🔽 BOTONES EXPORTAR */}
+          <div style={{ marginTop: "12px", display: "flex", gap: "8px" }}>
+            <button onClick={() => exportToPDF(filteredTransactions)}>
+              📄 Exportar PDF
+            </button>
+
+            <button onClick={() => exportToExcel(filteredTransactions)}>
+              📊 Exportar Excel
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* GRÁFICOS */}
+      <section className="charts">
+        <div className="card">
+          <IncomeExpenseChart income={totalIncome} expense={totalExpense} />
+        </div>
+
+        <div className="card">
+          <ExpenseByCategoryChart transactions={filteredTransactions} />
+        </div>
+
+        <div className="card">
+          <ExpenseLast30DaysChart transactions={transactions} />
+        </div>
+
+        <div className="card">
+          <IncomeLast30DaysChart transactions={transactions} />
+        </div>
+      </section>
+
+      {/* TABLAS */}
+      <section className="tables">
+        <div className="card">
+          <h2>Ingresos</h2>
+          <IncomeTable transactions={filteredTransactions} />
+        </div>
+
+        <div className="card">
+          <h2>Gastos</h2>
+          <ExpenseTable
+            transactions={filteredTransactions}
+            onDelete={handleDeleteTransaction}
+          />
+        </div>
+      </section>
+
     </div>
   );
 }
