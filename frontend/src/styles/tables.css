@@ -6,6 +6,7 @@
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 12px;
   font-size: 0.95rem;
 }
 
@@ -13,24 +14,35 @@ thead {
   background: var(--card-bg);
 }
 
-th, td {
-  padding: 12px;
-  text-align: left;
-}
-
 th {
+  text-align: left;
+  padding: 10px;
+  border-bottom: 2px solid var(--border-color);
   font-weight: 600;
-  border-bottom: 2px solid var(--border);
+  color: var(--text-color);
 }
 
-tr {
-  border-bottom: 1px solid var(--border);
+td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-color);
 }
 
+/* 🦓 Zebra rows */
+tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.dark tbody tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.04);
+}
+
+/* ✨ Hover */
 tbody tr:hover {
-  background: rgba(100, 108, 255, 0.08);
+  background-color: rgba(100, 108, 255, 0.08);
 }
 
+/* 💰 Montos */
 .amount-income {
   color: #2ecc71;
   font-weight: 600;
@@ -41,21 +53,60 @@ tbody tr:hover {
   font-weight: 600;
 }
 
-.table-empty {
-  padding: 16px;
-  text-align: center;
-  color: #888;
-}
-
+/* 🗑️ Botón eliminar */
 .delete-btn {
-  background: #e74c3c;
-  color: white;
+  background: transparent;
   border: none;
-  padding: 6px 10px;
-  border-radius: 6px;
   cursor: pointer;
+  font-size: 1.1rem;
+  opacity: 0.7;
 }
 
 .delete-btn:hover {
-  opacity: 0.85;
+  opacity: 1;
+  color: #e74c3c;
+}
+
+/* Empty */
+.table-empty {
+  margin-top: 12px;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* 📱 MOBILE TABLES */
+@media (max-width: 768px) {
+  table {
+    border: 0;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px;
+    background: var(--card-bg);
+  }
+
+  tbody td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border: none;
+  }
+
+  tbody td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    opacity: 0.7;
+  }
+
+  .delete-btn {
+    font-size: 1.3rem;
+  }
 }

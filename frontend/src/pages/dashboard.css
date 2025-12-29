@@ -22,6 +22,7 @@ body.dark {
 ========================= */
 
 body {
+  margin: 0;
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -49,6 +50,12 @@ body {
 .dashboard-header h1 {
   font-size: 28px;
   font-weight: 600;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
 }
 
 .header-actions button {
@@ -135,15 +142,99 @@ body {
   gap: 20px;
 }
 
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th {
+  text-align: left;
+  color: var(--muted);
+  border-bottom: 2px solid var(--border);
+  padding: 10px;
+}
+
+td {
+  padding: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+tbody tr:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.table-empty {
+  color: var(--muted);
+  font-size: 14px;
+}
+
 /* =========================
-   RESPONSIVE
+   RESPONSIVE – TABLET
 ========================= */
 
 @media (max-width: 900px) {
+  .dashboard {
+    padding: 16px;
+    gap: 20px;
+  }
+
   .summary,
   .actions,
   .charts,
   .tables {
     grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .card {
+    padding: 16px;
+  }
+}
+
+/* =========================
+   RESPONSIVE – MOBILE
+========================= */
+
+@media (max-width: 600px) {
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .dashboard-header h1 {
+    font-size: 22px;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions button {
+    flex: 1;
+    min-height: 42px;
+  }
+
+  .summary h3 {
+    font-size: 13px;
+  }
+
+  .amount {
+    font-size: 22px;
+  }
+
+  table {
+    font-size: 13px;
+  }
+
+  th,
+  td {
+    padding: 6px;
   }
 }
