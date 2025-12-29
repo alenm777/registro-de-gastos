@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { getTransactions, deleteTransaction } from "../services/transactions";
+
 import TransactionForm from "../components/TransactionForm";
 import IncomeExpenseChart from "../components/IncomeExpenseChart";
 import ExpenseLast30DaysChart from "../components/ExpenseLast30DaysChart";
 import IncomeLast30DaysChart from "../components/IncomeLast30DaysChart";
 import IncomeTable from "../components/IncomeTable";
 import ExpenseTable from "../components/ExpenseTable";
+import ExpenseByCategoryChart from "../components/ExpenseByCategoryChart";
 
 export default function Dashboard() {
   const { logout } = useAuth();
   const [transactions, setTransactions] = useState([]);
+
+  // 📅 Mes seleccionado (YYYY-MM)
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  });
 
   // 🔄 Cargar transacciones
   const loadTransactions = async () => {
@@ -39,12 +47,20 @@ export default function Dashboard() {
     }
   };
 
-  // 📊 Totales
-  const totalIncome = transactions
+  // 🔎 Filtrar transacciones por mes
+  const filteredTransactions = transactions.filter(t => {
+    if (!t.date) return false;
+    const d = new Date(t.date);
+    const month = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    return month === selectedMonth;
+  });
+
+  // 📊 Totales del mes
+  const totalIncome = filteredTransactions
     .filter(t => t.type === "income")
     .reduce((acc, t) => acc + Number(t.amount), 0);
 
-  const totalExpense = transactions
+  const totalExpense = filteredTransactions
     .filter(t => t.type === "expense")
     .reduce((acc, t) => acc + Number(t.amount), 0);
 
@@ -58,13 +74,23 @@ export default function Dashboard() {
 
       <hr />
 
-      {/* NUEVA TRANSACCIÓN */}
+      {/* 📅 FILTRO POR MES */}
+      <h3>Filtrar por mes</h3>
+      <input
+        type="month"
+        value={selectedMonth}
+        onChange={e => setSelectedMonth(e.target.value)}
+      />
+
+      <hr />
+
+      {/* ➕ NUEVA TRANSACCIÓN */}
       <h2>Nueva transacción</h2>
       <TransactionForm onCreated={loadTransactions} />
 
       <hr />
 
-      {/* TARJETAS */}
+      {/* 📊 TARJETAS */}
       <div style={{ display: "flex", gap: "16px", margin: "20px 0" }}>
         <div style={{ padding: "16px", border: "1px solid #ccc", width: "200px" }}>
           <h3>Ingresos</h3>
@@ -97,22 +123,30 @@ export default function Dashboard() {
 
       <hr />
 
-       {/* TABLAS */}
+      {/* 📋 TABLAS */}
       <h2>Listado completo de ingresos</h2>
-      <IncomeTable transactions={transactions} />
+      <IncomeTable transactions={filteredTransactions} />
 
       <h2>Listado completo de gastos</h2>
       <ExpenseTable
-        transactions={transactions}
+        transactions={filteredTransactions}
         onDelete={handleDeleteTransaction}
       />
-
-      {/* GRÁFICOS */}
-      <IncomeExpenseChart income={totalIncome} expense={totalExpense} />
-      <ExpenseLast30DaysChart transactions={transactions} />
-      <IncomeLast30DaysChart transactions={transactions} />
-
       <hr />
+      {/* 📈 GRÁFICOS */}
+      <IncomeExpenseChart
+        income={totalIncome}
+        expense={totalExpense}
+      />
+      <ExpenseByCategoryChart
+        transactions={filteredTransactions}
+      />
+      <ExpenseLast30DaysChart
+        transactions={filteredTransactions}
+      />
+      <IncomeLast30DaysChart
+        transactions={filteredTransactions}
+      />
     </div>
   );
 }
