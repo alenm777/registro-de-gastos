@@ -1,38 +1,72 @@
 import { useState } from "react";
-import api from "../services/api";
+import { useNavigate, Link } from "react-router-dom";
+import { registerRequest } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function Register() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = async e => {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: ""
+  });
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value
+    });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     try {
-      await api.post("/auth/register", {
-        name,
-        email,
-        password,
-      });
-      alert("Usuario creado");
-    } catch {
-      alert("Error al registrar");
+      const res = await registerRequest(form);
+
+      // 👉 auto login
+      login(res.data.user, res.data.token);
+
+      // 👉 al dashboard
+      navigate("/");
+    } catch (err) {
+      alert("Error al registrarse");
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <h2>Registro</h2>
+      <h2>Crear cuenta</h2>
 
-      <input placeholder="Nombre" onChange={e => setName(e.target.value)} />
-      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
       <input
-        type="password"
-        placeholder="Password"
-        onChange={e => setPassword(e.target.value)}
+        name="name"
+        placeholder="Nombre"
+        value={form.name}
+        onChange={handleChange}
       />
 
-      <button>Registrarse</button>
+      <input
+        name="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={handleChange}
+      />
+
+      <input
+        name="password"
+        type="password"
+        placeholder="Contraseña"
+        value={form.password}
+        onChange={handleChange}
+      />
+
+      <button type="submit">Registrarse</button>
+
+      <p>
+        ¿Ya tenés cuenta? <Link to="/login">Ingresar</Link>
+      </p>
     </form>
   );
 }
