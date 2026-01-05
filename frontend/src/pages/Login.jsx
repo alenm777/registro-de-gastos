@@ -1,15 +1,13 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { loginRequest, registerRequest } from "../services/auth";
+import { useNavigate, Link } from "react-router-dom";
+import { loginRequest } from "../services/auth";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const [isRegister, setIsRegister] = useState(false);
   const [error, setError] = useState("");
-
   const [form, setForm] = useState({
     email: "",
     password: ""
@@ -27,27 +25,21 @@ export default function Login() {
     setError("");
 
     try {
-      const res = isRegister
-        ? await registerRequest(form)
-        : await loginRequest(form);
+      const res = await loginRequest(form);
 
-      // 🔐 Guardar token
-      login(res.data.token);
+      // ✅ GUARDAR USUARIO + TOKEN
+      login(res.data.user, res.data.token);
 
-      // 👉 Ir al dashboard
+      // 👉 Dashboard
       navigate("/");
     } catch (err) {
-      setError(
-        isRegister
-          ? "No se pudo registrar el usuario"
-          : "Email o contraseña incorrectos"
-      );
+      setError("Email o contraseña incorrectos");
     }
   };
 
   return (
     <div className="login-container">
-      <h2>{isRegister ? "Crear cuenta" : "Ingresar"}</h2>
+      <h2>Ingresar</h2>
 
       <form onSubmit={handleSubmit}>
         <input
@@ -69,18 +61,11 @@ export default function Login() {
 
         {error && <p className="error">{error}</p>}
 
-        <button type="submit">
-          {isRegister ? "Registrarse" : "Ingresar"}
-        </button>
+        <button type="submit">Ingresar</button>
       </form>
 
-      <p
-        style={{ marginTop: "12px", cursor: "pointer", color: "#2563eb" }}
-        onClick={() => setIsRegister(!isRegister)}
-      >
-        {isRegister
-          ? "¿Ya tenés cuenta? Ingresar"
-          : "¿No tenés cuenta? Registrate"}
+      <p style={{ marginTop: "12px" }}>
+        ¿No tenés cuenta? <Link to="/register">Registrate</Link>
       </p>
     </div>
   );

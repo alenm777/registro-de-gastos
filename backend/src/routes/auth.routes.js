@@ -50,4 +50,41 @@ router.post("/register", async (req, res) => {
   }
 });
 
+
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(401).json({ message: "Credenciales inválidas" });
+    }
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ message: "Credenciales inválidas" });
+    }
+
+    const token = jwt.sign(
+      { id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      },
+      token
+    });
+
+  } catch (error) {
+    console.error("ERROR LOGIN:", error);
+    res.status(500).json({ message: "Error al iniciar sesión" });
+  }
+});
+
+
 module.exports = router;
